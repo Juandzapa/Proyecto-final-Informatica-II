@@ -9,6 +9,7 @@
 #include "papacerdito.h"
 #include "obstaculo.h"
 #include <QList>
+#include <QVector>
 
 class Nivel : public QGraphicsScene
 {
@@ -49,8 +50,10 @@ protected:
     float tiempo_generacion;
     float intervalo_generacion;
     float espera;
+    bool vista_fija;
     QList<Obstaculo *> obstaculos;
-    QPixmap imagenes_obstaculo[3];
+    QPixmap imagenes_obstaculo[4];
+    QVector<QPixmap> cuadros_dron;
 
 private:
     void crear_fondo(const QString &ruta);

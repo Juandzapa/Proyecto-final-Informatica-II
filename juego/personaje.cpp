@@ -1,17 +1,24 @@
 #include "personaje.h"
+#include <QTransform>
 #include <cmath>
 
-Personaje::Personaje(const QVector<QPixmap> &correr, const QVector<QPixmap> &salto, const QVector<QPixmap> &deslizar, const QPixmap &img_golpe, float linea_suelo, float x_base)
+Personaje::Personaje(const QVector<QPixmap> &correr, const QVector<QPixmap> &salto, const QVector<QPixmap> &deslizar, const QVector<QPixmap> &agachar, const QVector<QPixmap> &quieto, const QPixmap &img_golpe, float linea_suelo, float x_base)
     : ObjetoJuego(correr.at(0)),
       cuadros_correr(correr),
       cuadros_salto(salto),
       cuadros_deslizar(deslizar),
+      cuadros_agachado(agachar),
+      cuadros_quieto(quieto),
+      cuadro_quieto(0),
+      tiempo_quieto(0.0f),
       imagen_golpe(img_golpe),
       cuadro_actual(0),
       tiempo_cuadro(0.0f),
       tiempo_golpe(0.0f),
       tiempo_agachado(0.0f),
       imagen_puesta(nullptr),
+      mirando_izquierda(false),
+      izquierda_puesta(false),
       vidas(3),
       linea_suelo(linea_suelo),
       altura(0.0f),
@@ -28,10 +35,23 @@ Personaje::Personaje(const QVector<QPixmap> &correr, const QVector<QPixmap> &sal
       k_arrastre(1.0f),
       t_arrastre(0.0f),
       x_base(x_base),
-      velocidad_regreso(50.0f)
+      velocidad_regreso(50.0f),
+      movimiento_libre(false),
+      direccion(0),
+      velocidad_lateral(180.0f),
+      x_minima(0.0f),
+      x_maxima(ANCHO_ESCENA),
+      efecto_cansado(nullptr),
+      mostrando_cansado(false)
 {
     setPos(x_base, linea_suelo - pixmap().height());
     setZValue(1);
+
+    efecto_cansado = new QGraphicsColorizeEffect();
+    efecto_cansado->setColor(QColor(70, 110, 255));
+    efecto_cansado->setStrength(0.6);
+    efecto_cansado->setEnabled(false);
+    setGraphicsEffect(efecto_cansado);
 }
 
 void Personaje::saltar(){
@@ -74,6 +94,22 @@ void Personaje::perder_vida(){
     }
 }
 
+void Personaje::permitir_movimiento(float minimo, float maximo){
+    movimiento_libre = true;
+    x_minima = minimo;
+    x_maxima = maximo;
+}
+
+void Personaje::mover(short sentido){
+    direccion = sentido;
+    if (sentido < 0) {
+        mirando_izquierda = true;
+    }
+    else if (sentido > 0) {
+        mirando_izquierda = false;
+    }
+}
+
 void Personaje::actualizar(float dt){
     estados.actualizar(dt);
     actualizar_salto(dt);
@@ -104,7 +140,21 @@ void Personaje::actualizar_arrastre(float dt){
 
         if (v0_arrastre * frenado < 5.0f) {
             arrastrando = false;
+            if (movimiento_libre) {
+                x_base = x();
+            }
         }
+    }
+    else if (movimiento_libre && direccion != 0 && !agachado) {
+        float nueva_x = x() + direccion * velocidad_lateral * dt;
+        if (nueva_x < x_minima) {
+            nueva_x = x_minima;
+        }
+        if (nueva_x > x_maxima) {
+            nueva_x = x_maxima;
+        }
+        setX(nueva_x);
+        x_base = nueva_x;
     }
     else if (x() < x_base) {
         float nueva_x = x() + velocidad_regreso * dt;
@@ -132,12 +182,24 @@ void Personaje::actualizar_imagen(float dt){
         nueva = &cuadros_salto.at(indice);
     }
     else if (agachado) {
+        const QVector<QPixmap> *cuadros = &cuadros_deslizar;
+        if (movimiento_libre) {
+            cuadros = &cuadros_agachado;
+        }
         tiempo_agachado += dt;
         int indice = static_cast<int>(tiempo_agachado / 0.08f);
-        if (indice >= cuadros_deslizar.size()) {
-            indice = cuadros_deslizar.size() - 1;
+        if (indice >= cuadros->size()) {
+            indice = cuadros->size() - 1;
         }
-        nueva = &cuadros_deslizar.at(indice);
+        nueva = &cuadros->at(indice);
+    }
+    else if (movimiento_libre && direccion == 0) {
+        tiempo_quieto += dt;
+        if (tiempo_quieto >= 0.5f) {
+            tiempo_quieto = 0.0f;
+            cuadro_quieto = static_cast<unsigned short>((cuadro_quieto + 1) % cuadros_quieto.size());
+        }
+        nueva = &cuadros_quieto.at(cuadro_quieto);
     }
     else {
         tiempo_cuadro += dt;
@@ -148,9 +210,17 @@ void Personaje::actualizar_imagen(float dt){
         nueva = &cuadros_correr.at(cuadro_actual);
     }
 
-    if (nueva != imagen_puesta) {
+    if (nueva != imagen_puesta || mirando_izquierda != izquierda_puesta) {
         setPixmap(*nueva);
         imagen_puesta = nueva;
+        izquierda_puesta = mirando_izquierda;
+
+        if (mirando_izquierda) {
+            setTransform(QTransform().translate(pixmap().width(), 0).scale(-1, 1));
+        }
+        else {
+            setTransform(QTransform());
+        }
     }
 
     if (estados.esta_asustado()) {
@@ -158,6 +228,11 @@ void Personaje::actualizar_imagen(float dt){
     }
     else {
         setOpacity(1.0);
+    }
+
+    if (estados.esta_cansado() != mostrando_cansado) {
+        mostrando_cansado = estados.esta_cansado();
+        efecto_cansado->setEnabled(mostrando_cansado);
     }
 
     setY(linea_suelo - pixmap().height() - altura);

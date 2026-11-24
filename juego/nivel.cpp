@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <QRandomGenerator>
 
-Nivel::Nivel(NivelDificultad dif, float duracion, const QString &ruta_fondo, QObject *parent) : QGraphicsScene(parent), jugador(nullptr), papa(nullptr), dificultad(dif), linea_suelo(380.0f), carril_bajo(360.0f), carril_alto(325.0f), velocidad_fondo(200.0f), duracion(duracion), tiempo_transcurrido(0.0f), tiempo_generacion(0.0f), intervalo_generacion(1.5f), espera(1.5f), sombra(nullptr), frenesi_activo(false), terminado(false), ultimas_vidas(99), ultimo_porcentaje(999), ultimos_segundos(999)
+Nivel::Nivel(NivelDificultad dif, float duracion, const QString &ruta_fondo, QObject *parent) : QGraphicsScene(parent), jugador(nullptr), papa(nullptr), dificultad(dif), linea_suelo(380.0f), carril_bajo(360.0f), carril_alto(325.0f), velocidad_fondo(200.0f), duracion(duracion), tiempo_transcurrido(0.0f), tiempo_generacion(0.0f), intervalo_generacion(1.5f), espera(1.5f), vista_fija(false), sombra(nullptr), frenesi_activo(false), terminado(false), ultimas_vidas(99), ultimo_porcentaje(999), ultimos_segundos(999)
 {
     setSceneRect(0, 0, ANCHO_ESCENA, ALTO_ESCENA);
 
@@ -18,6 +18,9 @@ Nivel::Nivel(NivelDificultad dif, float duracion, const QString &ruta_fondo, QOb
     imagenes_obstaculo[FAROL] = imagen_o_provisional(":/sprites/farol.png", 27, 55, QColor(150, 100, 50));
     imagenes_obstaculo[CARTEL] = imagen_o_provisional(":/sprites/cartel.png", 24, 38, QColor(120, 120, 120));
     imagenes_obstaculo[SABANA] = imagen_o_provisional(":/sprites/sabana.png", 72, 15, QColor(220, 215, 200));
+    cuadros_dron.append(imagen_o_provisional(":/sprites/dron_1.png", 56, 18, QColor(60, 60, 70)));
+    cuadros_dron.append(imagen_o_provisional(":/sprites/dron_2.png", 56, 18, QColor(60, 60, 70)));
+    imagenes_obstaculo[DRON] = cuadros_dron.at(0);
 
     sombra = addRect(0, 0, ANCHO_ESCENA, ALTO_ESCENA, QPen(Qt::NoPen), QBrush(QColor(0, 0, 0, 90)));
     sombra->setZValue(3);
@@ -76,6 +79,23 @@ void Nivel::crear_jugador() {
         }
     }
 
+    QVector<QPixmap> agachar;
+    QVector<QPixmap> quieto;
+    for (int i = 1; i <= 2; i++) {
+        try {
+            agachar.append(cargar_imagen(QString(":/sprites/jugador_agachado_%1.png").arg(i)));
+        }
+        catch (const std::runtime_error &) {
+            agachar.append(deslizar.at(deslizar.size() - 1));
+        }
+        try {
+            quieto.append(cargar_imagen(QString(":/sprites/jugador_quieto_%1.png").arg(i)));
+        }
+        catch (const std::runtime_error &) {
+            quieto.append(correr.at(0));
+        }
+    }
+
     QPixmap golpe;
     try {
         golpe = cargar_imagen(":/sprites/jugador_golpe.png").scaled(42, 60, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -88,7 +108,7 @@ void Nivel::crear_jugador() {
         pintor.end();
     }
 
-    jugador = new Personaje(correr, salto, deslizar, golpe, linea_suelo, 360.0f);
+    jugador = new Personaje(correr, salto, deslizar, agachar, quieto, golpe, linea_suelo, 360.0f);
     addItem(jugador);
 }
 
@@ -135,8 +155,21 @@ void Nivel::actualizar_obstaculos(float dt)
 
 void Nivel::crear_obstaculo()
 {
-    TipoObstaculo tipo = static_cast<TipoObstaculo>(QRandomGenerator::global()->bounded(3));
-    Obstaculo *nuevo = new Obstaculo(imagenes_obstaculo[tipo], tipo, ANCHO_ESCENA, linea_suelo, velocidad_fondo);
+    Obstaculo *nuevo = nullptr;
+    if (vista_fija) {
+        TipoObstaculo tipo = static_cast<TipoObstaculo>(QRandomGenerator::global()->bounded(3));
+        float x = 180.0f + QRandomGenerator::global()->bounded(560);
+        nuevo = new Obstaculo(imagenes_obstaculo[tipo], tipo, x, linea_suelo, 0.0f);
+        nuevo->soltar_desde_arriba(900.0f, 3.0f);
+    }
+    else {
+        TipoObstaculo tipo = static_cast<TipoObstaculo>(QRandomGenerator::global()->bounded(4));
+        nuevo = new Obstaculo(imagenes_obstaculo[tipo], tipo, ANCHO_ESCENA, linea_suelo, velocidad_fondo);
+        if (tipo == DRON) {
+            nuevo->set_cuadros(cuadros_dron);
+            nuevo->poner_en_altura(linea_suelo - 40.0f - nuevo->pixmap().height());
+        }
+    }
     addItem(nuevo);
     obstaculos.append(nuevo);
 }
@@ -153,12 +186,12 @@ unsigned short Nivel::revisar_obstaculos()
             jugador->recibir_golpe(obstaculo->get_empuje(), dificultad.get_k_friccion());
             emit hubo_golpe();
         }
-        else if (!obstaculo->fue_superado() && obstaculo->x() + obstaculo->pixmap().width() < jugador->x()) {
+        else if (!vista_fija && !obstaculo->fue_superado() && obstaculo->x() + obstaculo->pixmap().width() < jugador->x()) {
             obstaculo->marcar_superado();
             superados++;
         }
 
-        if (obstaculo->fuera_de_pantalla()) {
+        if (obstaculo->fuera_de_pantalla() || obstaculo->termino()) {
             removeItem(obstaculo);
             delete obstaculo;
             obstaculos.removeAt(i);
@@ -188,7 +221,7 @@ void Nivel::actualizar(float dt) {
 }
 
 void Nivel::mover_fondo(float dt) {
-    if (fondo[0] == nullptr) {
+    if (fondo[0] == nullptr || vista_fija) {
         return;
     }
 
@@ -247,5 +280,21 @@ void Nivel::procesar_tecla(int tecla, bool presionada)
     }
     else if (tecla == Qt::Key_S) {
         jugador->agacharse(presionada);
+    }
+    else if (tecla == Qt::Key_A) {
+        if (presionada) {
+            jugador->mover(-1);
+        }
+        else {
+            jugador->mover(0);
+        }
+    }
+    else if (tecla == Qt::Key_D) {
+        if (presionada) {
+            jugador->mover(1);
+        }
+        else {
+            jugador->mover(0);
+        }
     }
 }
