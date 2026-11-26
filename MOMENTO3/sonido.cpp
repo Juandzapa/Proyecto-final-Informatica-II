@@ -9,7 +9,7 @@ Sonido::Sonido(QObject *parent)
       salida(nullptr)
 {
 
-    if (!QFile::exists(":/sonidos/musica.wav")) {
+    if (!QFile::exists(":/sonidos/MUSICA2.mpeg")) {
         throw std::runtime_error("Falta el archivo musica.wav");
     }
     if (!QFile::exists(":/sonidos/golpe.wav") || !QFile::exists(":/sonidos/disparo.wav")) {
@@ -19,7 +19,7 @@ Sonido::Sonido(QObject *parent)
     musica = new QMediaPlayer(this);
     salida = new QAudioOutput(this);
     musica->setAudioOutput(salida);
-    musica->setSource(QUrl("qrc:/sonidos/musica.wav"));
+    musica->setSource(QUrl("qrc:/sonidos/MUSICA2.mpeg"));
     musica->setLoops(QMediaPlayer::Infinite);
     salida->setVolume(0.4f);
 
