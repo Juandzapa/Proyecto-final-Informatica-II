@@ -25,7 +25,7 @@ private:
 
     QMediaPlayer *musica;
     QAudioOutput *salida;
-    QSoundEffect efectos[CANTIDAD_EFECTOS]; // se accede directo con el enum
+    QSoundEffect efectos[CANTIDAD_EFECTOS];
 };
 
 #endif // SONIDO_H

@@ -5,7 +5,7 @@
 #include <QLabel>
 #include <QProgressBar>
 
-// Barra de arriba con las vidas, el tiempo y el progreso del nivel
+
 
 class Panel : public QWidget
 {

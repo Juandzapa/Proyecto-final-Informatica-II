@@ -8,7 +8,7 @@ Sonido::Sonido(QObject *parent)
       musica(nullptr),
       salida(nullptr)
 {
-    // si falta un archivo se lanza una excepcion y el juego sigue sin sonido
+
     if (!QFile::exists(":/sonidos/musica.wav")) {
         throw std::runtime_error("Falta el archivo musica.wav");
     }

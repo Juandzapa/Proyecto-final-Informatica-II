@@ -8,12 +8,7 @@
 
 const unsigned short TAM_HISTORIAL = 5;
 
-// Agente inteligente del juego.
-// Percepcion: mira si el jugador esta en el aire o en el suelo.
-// Razonamiento: decide a que carril (alto o bajo) se mueve y dispara.
-// Accion: se mueve con MAS y dispara proyectiles de lodo.
-// Aprendizaje: recuerda las ultimas 5 jugadas; si el jugador salta mucho,
-// empieza a disparar arriba aunque el jugador este en el suelo.
+
 
 class PapaCerdito : public ObjetoJuego
 {
@@ -34,7 +29,7 @@ public:
 private:
     void actualizar_imagen(float dt);
 
-    // movimiento: y(t) = y_centro + A*sin(w*t + fase)
+
     float carril_bajo;
     float carril_alto;
     float y_centro;
@@ -44,9 +39,8 @@ private:
     float omega;
     float fase;
     float t;
-    float desfase_boca; // para que la boca del arma quede justo en el carril
+    float desfase_boca;
 
-    // memoria del agente (cola circular)
     bool historial[TAM_HISTORIAL];
     unsigned short indice_historial;
     unsigned short saltos_en_historial;
@@ -59,9 +53,9 @@ private:
     float tiempo_disparo;
     float intervalo_disparo;
 
-    // animacion del helicoptero (solo nivel 2)
+
     bool animado;
-    // en cada estado se alternan dos cuadros para que giren las aspas
+
     QVector<QPixmap> cuadros_apuntar;
     QVector<QPixmap> cuadros_disparo;
     QVector<QPixmap> cuadros_recarga;
@@ -70,11 +64,11 @@ private:
     float tiempo_desde_disparo;
     const QPixmap *imagen_puesta;
 
-    // donde queda la boca del arma dentro de la imagen (0 a 1)
+
     float boca_x;
     float boca_y;
 
-    float tiempo_por_cuadro; // cada cuanto cambia de cuadro
+    float tiempo_por_cuadro;
 };
 
 #endif // PAPACERDITO_H

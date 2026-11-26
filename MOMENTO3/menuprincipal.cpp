@@ -17,7 +17,6 @@ MenuPrincipal::MenuPrincipal(QWidget *parent)
         "QComboBox { background-color: #e8e0cc; padding: 4px; }");
     setAttribute(Qt::WA_StyledBackground, true);
 
-    // a la izquierda la imagen de Papa Cerdito, a la derecha las opciones
     QHBoxLayout *fila = new QHBoxLayout(this);
     QLabel *imagen = new QLabel(this);
     QPixmap papa(":/sprites/menu_papa.png");
@@ -49,7 +48,7 @@ MenuPrincipal::MenuPrincipal(QWidget *parent)
     boton_nivel1->setMinimumWidth(260);
     boton_nivel2->setMinimumWidth(260);
 
-    QLabel *controles = new QLabel("W: saltar     S: agacharse", this);
+    QLabel *controles = new QLabel("W: saltar     S: deslizarse     A / D: moverse (nivel 2)", this);
     controles->setAlignment(Qt::AlignCenter);
 
     columna->addWidget(titulo);
@@ -68,13 +67,13 @@ MenuPrincipal::MenuPrincipal(QWidget *parent)
 
 NivelDificultad MenuPrincipal::dificultad_escogida() const
 {
-    // el orden de la lista es el mismo del enum: 0 facil, 1 normal, 2 dificil
+
     return static_cast<NivelDificultad>(selector_dificultad->currentIndex());
 }
 
 void MenuPrincipal::boton_nivel1_presionado()
 {
-    // el nivel 1 siempre es normal, la dificultad solo se escoge para el 2
+
     emit jugar(1, NORMAL);
 }
 

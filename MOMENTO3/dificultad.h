@@ -15,11 +15,11 @@ public:
     float get_intervalo_obstaculos() const;
 
 private:
-    float k_friccion;           // que tan rapido se frena el arrastre (1/s)
-    float limite_saltos;        // porcentaje de saltos para que Papa Cerdito apunte arriba
-    float intervalo_disparo;    // segundos entre disparos (nivel 2)
-    float velocidad_proyectil;  // px/s
-    float intervalo_obstaculos; // segundos entre obstaculos (nivel 1)
+    float k_friccion;
+    float limite_saltos;
+    float intervalo_disparo;
+    float velocidad_proyectil;
+    float intervalo_obstaculos;
 };
 
 #endif // DIFICULTAD_H

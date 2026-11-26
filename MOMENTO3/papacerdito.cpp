@@ -45,8 +45,7 @@ void PapaCerdito::percibir(const Personaje &jugador)
 
 void PapaCerdito::aprender()
 {
-    // si el historial esta lleno se va a sobrescribir la jugada mas vieja,
-    // entonces primero se descuenta si esa era un salto
+
     if (registros == TAM_HISTORIAL) {
         if (historial[indice_historial]) {
             saltos_en_historial--;
@@ -66,7 +65,7 @@ void PapaCerdito::aprender()
 
 void PapaCerdito::razonar()
 {
-    // solo usa lo aprendido cuando ya tiene las 5 jugadas
+
     apuntar_arriba = false;
     if (registros == TAM_HISTORIAL) {
         float proporcion = static_cast<float>(saltos_en_historial) / TAM_HISTORIAL;
@@ -87,7 +86,7 @@ void PapaCerdito::actuar(float dt)
 {
     t += dt;
 
-    // se acerca al carril que escogio
+
     if (y_centro < y_objetivo) {
         y_centro += velocidad_carril * dt;
         if (y_centro > y_objetivo) {
@@ -101,7 +100,7 @@ void PapaCerdito::actuar(float dt)
         }
     }
 
-    // movimiento armonico simple alrededor del carril
+
     float y = y_centro + amplitud * std::sin(omega * t + fase);
     setY(y - pixmap().height() / 2.0f - desfase_boca);
 
@@ -114,8 +113,7 @@ Proyectil *PapaCerdito::disparar(const QVector<QPixmap> &cuadros_bala, float vel
         return nullptr;
     }
 
-    // espera a que el MAS pase por el centro del carril escogido (sin = 0),
-    // asi la bala sale derecho a la altura correcta
+
     float desplazamiento = amplitud * std::sin(omega * t + fase);
     if (y_centro != y_objetivo || std::fabs(desplazamiento) > 4.0f) {
         return nullptr;
@@ -123,7 +121,7 @@ Proyectil *PapaCerdito::disparar(const QVector<QPixmap> &cuadros_bala, float vel
     tiempo_disparo = 0.0f;
     tiempo_desde_disparo = 0.0f;
 
-    // la bala sale derecho desde la boca del arma, que esta sobre el carril escogido
+
     float x_inicio = x() + boca_x * pixmap().width();
     float y_inicio = y() + boca_y * pixmap().height() - cuadros_bala.at(0).height() / 2.0f;
     return new Proyectil(cuadros_bala, x_inicio, y_inicio, velocidad);
@@ -153,7 +151,7 @@ void PapaCerdito::set_boca_arma(float fraccion_x, float fraccion_y)
 {
     boca_x = fraccion_x;
     boca_y = fraccion_y;
-    // se corre el dibujo para que la boca (y no el centro) quede en y_centro
+
     desfase_boca = (boca_y - 0.5f) * pixmap().height();
 }
 
@@ -165,7 +163,7 @@ void PapaCerdito::actualizar_imagen(float dt)
 
     tiempo_desde_disparo += dt;
 
-    // segun lo que este haciendo se escoge la lista de cuadros
+
     const QVector<QPixmap> *cuadros = &cuadros_apuntar;
     if (tiempo_desde_disparo < 0.25f) {
         cuadros = &cuadros_disparo;
@@ -174,7 +172,7 @@ void PapaCerdito::actualizar_imagen(float dt)
         cuadros = &cuadros_recarga;
     }
 
-    // en todos los estados se alternan los cuadros para que giren las aspas
+
     tiempo_cuadro += dt;
     if (tiempo_cuadro >= tiempo_por_cuadro) {
         tiempo_cuadro = 0.0f;

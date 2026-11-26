@@ -11,7 +11,7 @@ Dificultad::Dificultad(NivelDificultad nivel)
         intervalo_obstaculos = 2.2f;
         break;
     case NORMAL:
-        // el nivel 1 siempre usa estos valores
+
         k_friccion = 1.8f;
         limite_saltos = 0.8f;
         intervalo_disparo = 2.0f;
@@ -19,7 +19,7 @@ Dificultad::Dificultad(NivelDificultad nivel)
         intervalo_obstaculos = 1.5f;
         break;
     case DIFICIL:
-        // el arrastre dura mas y Papa Cerdito aprende con menos saltos
+
         k_friccion = 1.4f;
         limite_saltos = 0.6f;
         intervalo_disparo = 1.5f;
