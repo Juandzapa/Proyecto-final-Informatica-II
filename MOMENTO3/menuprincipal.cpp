@@ -41,6 +41,7 @@ MenuPrincipal::MenuPrincipal(QWidget *parent)
     selector_dificultad->addItem("Fácil");
     selector_dificultad->addItem("Normal");
     selector_dificultad->addItem("Difícil");
+    selector_dificultad->setStyleSheet("color: #000000;");
     selector_dificultad->setCurrentIndex(DIFICIL);
 
     boton_nivel1 = new QPushButton("Nivel 1: La huida", this);

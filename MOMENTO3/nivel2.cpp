@@ -10,6 +10,11 @@ Nivel2::Nivel2(NivelDificultad dif, QObject *parent)
     intervalo_generacion = dificultad.get_intervalo_obstaculos() * 2.2f;
     espera = intervalo_generacion;
 
+    tipos_obstaculo.append(PINCHOS);
+    tipos_obstaculo.append(BOMBA);
+    tipos_obstaculo.append(METEORO);
+    tipos_obstaculo.append(SABANA);
+
     cuadros_proyectil.append(imagen_o_provisional(":/sprites/proyectil_1.png", 40, 13, QColor(200, 160, 60)));
     cuadros_proyectil.append(imagen_o_provisional(":/sprites/proyectil_2.png", 40, 13, QColor(200, 160, 60)));
 
