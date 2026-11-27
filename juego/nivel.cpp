@@ -21,6 +21,9 @@ Nivel::Nivel(NivelDificultad dif, float duracion, const QString &ruta_fondo, QOb
     cuadros_dron.append(imagen_o_provisional(":/sprites/dron_1.png", 56, 18, QColor(60, 60, 70)));
     cuadros_dron.append(imagen_o_provisional(":/sprites/dron_2.png", 56, 18, QColor(60, 60, 70)));
     imagenes_obstaculo[DRON] = cuadros_dron.at(0);
+    imagenes_obstaculo[PINCHOS] = imagen_o_provisional(":/sprites/pinchos.png", 32, 32, QColor(120, 120, 130));
+    imagenes_obstaculo[BOMBA] = imagen_o_provisional(":/sprites/bomba.png", 23, 32, QColor(40, 40, 50));
+    imagenes_obstaculo[METEORO] = imagen_o_provisional(":/sprites/meteoro.png", 22, 32, QColor(120, 70, 40));
 
     sombra = addRect(0, 0, ANCHO_ESCENA, ALTO_ESCENA, QPen(Qt::NoPen), QBrush(QColor(0, 0, 0, 90)));
     sombra->setZValue(3);
@@ -156,14 +159,15 @@ void Nivel::actualizar_obstaculos(float dt)
 void Nivel::crear_obstaculo()
 {
     Obstaculo *nuevo = nullptr;
+    int indice = QRandomGenerator::global()->bounded(static_cast<int>(tipos_obstaculo.size()));
+    TipoObstaculo tipo = tipos_obstaculo.at(indice);
+
     if (vista_fija) {
-        TipoObstaculo tipo = static_cast<TipoObstaculo>(QRandomGenerator::global()->bounded(3));
         float x = 180.0f + QRandomGenerator::global()->bounded(560);
         nuevo = new Obstaculo(imagenes_obstaculo[tipo], tipo, x, linea_suelo, 0.0f);
         nuevo->soltar_desde_arriba(900.0f, 3.0f);
     }
     else {
-        TipoObstaculo tipo = static_cast<TipoObstaculo>(QRandomGenerator::global()->bounded(4));
         nuevo = new Obstaculo(imagenes_obstaculo[tipo], tipo, ANCHO_ESCENA, linea_suelo, velocidad_fondo);
         if (tipo == DRON) {
             nuevo->set_cuadros(cuadros_dron);

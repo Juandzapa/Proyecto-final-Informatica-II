@@ -68,6 +68,12 @@ float Obstaculo::get_empuje() const {
         return 200.0f;
     case DRON:
         return 140.0f;
+    case PINCHOS:
+        return 180.0f;
+    case BOMBA:
+        return 220.0f;
+    case METEORO:
+        return 200.0f;
     }
     return 120.0f;
 }

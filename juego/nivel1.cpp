@@ -6,6 +6,11 @@ Nivel1::Nivel1(QObject *parent) : Nivel(NORMAL, 35.0f, ":/sprites/fondo1.png", p
     intervalo_generacion = dificultad.get_intervalo_obstaculos();
     espera = intervalo_generacion;
 
+    tipos_obstaculo.append(FAROL);
+    tipos_obstaculo.append(CARTEL);
+    tipos_obstaculo.append(SABANA);
+    tipos_obstaculo.append(DRON);
+
     QVector<QPixmap> caminar;
     for (int i = 1; i <= 3; i++) {
         caminar.append(imagen_o_provisional(QString(":/sprites/papa_caminar_%1.png").arg(i), 43, 70, QColor(200, 90, 120)));

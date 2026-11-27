@@ -52,7 +52,8 @@ protected:
     float espera;
     bool vista_fija;
     QList<Obstaculo *> obstaculos;
-    QPixmap imagenes_obstaculo[4];
+    QPixmap imagenes_obstaculo[7];
+    QVector<TipoObstaculo> tipos_obstaculo;
     QVector<QPixmap> cuadros_dron;
 
 private:

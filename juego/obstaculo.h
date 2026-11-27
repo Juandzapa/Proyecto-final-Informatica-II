@@ -4,7 +4,7 @@
 #include <QVector>
 #include "objetojuego.h"
 
-enum TipoObstaculo { FAROL, CARTEL, SABANA, DRON };
+enum TipoObstaculo { FAROL, CARTEL, SABANA, DRON, PINCHOS, BOMBA, METEORO };
 
 class Obstaculo : public ObjetoJuego
 {
